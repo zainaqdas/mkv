@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MKV Streamer</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    video { width: 100%; max-width: 800px; margin-top: 20px; }
+    input, button { padding: 10px; font-size: 1rem; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>MKV Streaming Player</h1>
+  <input id="url" placeholder="Enter MKV URL" style="width:70%"/>
+  <input id="name" placeholder="File name (no spaces)" style="width:25%"/>
+  <button id="playBtn">Play</button>
+
+  <video id="player" controls></video>
+
+  <script>
+    const playBtn = document.getElementById('playBtn');
+    const video = document.getElementById('player');
+
+    playBtn.onclick = async () => {
+      const url = document.getElementById('url').value;
+      const filename = document.getElementById('name').value;
+      if (!url || !filename) return alert("URL and filename required");
+
+      const response = await fetch('/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, filename })
+      });
+      const data = await response.json();
+      if (data.error) return alert(data.error);
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(data.hls);
+        hls.attachMedia(video);
+      } else {
+        video.src = data.hls;
+      }
+    };
+  </script>
+</body>
+</html>
