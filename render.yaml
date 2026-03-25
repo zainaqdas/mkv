@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mkv-streamer
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
